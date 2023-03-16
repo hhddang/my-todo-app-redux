@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Desciption
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This todo app uses
 
-## Available Scripts
+- local storage to save todo list (Read more below)
+- redux toolkit for interchange between components (Read more below)
+- styled-components for uickly styling
 
-In the project directory, you can run:
+Set up by following flow:
 
-### `npm start`
+1. DEFINE redux include <store>, <slice>s, and <selector>s
+2. CALL <store> at top-level component with Provider
+3. USE <selector> to get data and dispatch(<slice>.action) to set data from <store>
+   Note: Redux toolkit self-defines and names <slice>.action after <slice>.reducer name
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Components \\Components at abstract level NOT coding-level
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+todo : {name:String, done:Boolean, urgent:Boolean}
 
-### `npm test`
+todoList : [<todo>]
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+filter : {
+~ byText: String,
+~ byStatus: "done" || "still" || "all" <=> todo.done == True || False || <both>,
+~ byPriority: "urgent" || "ordinary" || "all" <=> todo.urgent == True || False || <both>,
+} => todoList
 
-### `npm run build`
+# Local storage
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+key = "todoList"
+value = stringtify(todoList)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Read local storage when starting web app
+Save to local storage whenever todoList changes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Redux toolkit
 
-### `npm run eject`
+- Define slices
+- Write selectors
+- Add slices to store
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Slices \\Define seperated slices of root reducer
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### todoListSlice
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+initState = readFromLocalStorage() || []
+reducer : {
+~ addTodo() \\Push new todo into todoList
+~ toggleTodoStatus() \\Change a todo.done from todoList
+}
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### filterSlice
 
-## Learn More
+initState = {
+~ byText: "",
+~ byStatus: "all"
+~ byPriority: "all"
+}
+reducer : {
+~ searchFilterChange() \\Change state.byText
+~ statusFilterChange() \\Change state.byStatus
+~ priorityFilterChange() \\Change state.byPriority
+}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Selector \\Get functions that read state from store
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+searchTextFilterSelector() \\Read state.filter.byText
+statusFilterSelector() \\Read state.filter.byStatus
+priorityFilterSelector() \\Read state.filter.byPriority
+todoListSelector() \\Read state.todoList
+todoListSelectorWithFilter() \\Read state.dotoList after passing through 3 filters above
 
-### Code Splitting
+## Store \\A global storage used for interchange between components of the website
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Confire store by adding slices' reducer
